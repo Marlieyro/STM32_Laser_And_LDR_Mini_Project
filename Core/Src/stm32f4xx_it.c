@@ -21,6 +21,9 @@
 #include "main.h"
 #include "stm32f4xx_it.h"
 
+#include "adc.h"
+#include "i2c.h"
+
 /**
   * @brief This function handles Non maskable interrupt.
   */
@@ -149,4 +152,18 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 1 */
 }
 
+// I2C_RX
+void DMA1_Stream0_IRQHandler() {
+  HAL_DMA_IRQHandler(I2C1_Get_HandleTypeDef()->hdmarx);
+  // TODO  callback
+}
 
+// I2C_TX
+void DMA1_Stream6_IRQHandler() {
+  HAL_DMA_IRQHandler(I2C1_Get_HandleTypeDef()->hdmatx);
+  // TODO  callback
+}
+void DMA2_Stream0_IRQHandler() {
+  HAL_DMA_IRQHandler(ADC1_Get_HandleTypeDef()->DMA_Handle);
+  // TODO  callback
+}

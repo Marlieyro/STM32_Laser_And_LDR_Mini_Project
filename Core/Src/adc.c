@@ -20,28 +20,14 @@
 /* Includes ------------------------------------------------------------------*/
 #include "adc.h"
 
-/* USER CODE BEGIN 0 */
+#include "i2c.h"
 
-/* USER CODE END 0 */
+static ADC_HandleTypeDef hadc1 = {0};
+static DMA_HandleTypeDef dma2_handle_adc1 = {0};
 
-ADC_HandleTypeDef hadc1;
-
-/* ADC1 init function */
-void MX_ADC1_Init(void)
-{
-
-  /* USER CODE BEGIN ADC1_Init 0 */
-
-  /* USER CODE END ADC1_Init 0 */
-
+void MX_ADC1_Init(void){
   ADC_ChannelConfTypeDef sConfig = {0};
 
-  /* USER CODE BEGIN ADC1_Init 1 */
-
-  /* USER CODE END ADC1_Init 1 */
-
-  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-  */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
@@ -64,26 +50,15 @@ void MX_ADC1_Init(void)
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK){
     Error_Handler();
   }
-  /* USER CODE BEGIN ADC1_Init 2 */
-
-  /* USER CODE END ADC1_Init 2 */
-
 }
 
-void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
-{
-
+void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle){
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  if(adcHandle->Instance==ADC1)
-  {
-  /* USER CODE BEGIN ADC1_MspInit 0 */
+  if(adcHandle->Instance==ADC1){
 
-  /* USER CODE END ADC1_MspInit 0 */
-    /* ADC1 clock enable */
     __HAL_RCC_ADC1_CLK_ENABLE();
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -95,21 +70,13 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /* USER CODE BEGIN ADC1_MspInit 1 */
-
-  /* USER CODE END ADC1_MspInit 1 */
   }
 }
 
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 {
-
   if(adcHandle->Instance==ADC1)
   {
-  /* USER CODE BEGIN ADC1_MspDeInit 0 */
-
-  /* USER CODE END ADC1_MspDeInit 0 */
-    /* Peripheral clock disable */
     __HAL_RCC_ADC1_CLK_DISABLE();
 
     /**ADC1 GPIO Configuration
@@ -117,13 +84,27 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0);
 
-  /* USER CODE BEGIN ADC1_MspDeInit 1 */
-
-  /* USER CODE END ADC1_MspDeInit 1 */
   }
 }
 
-/* USER CODE BEGIN 1 */
+// ADC1 - DMA2 Stream0 Channel0
+void ADC_DMA_Init(void) {
+  dma2_handle_adc1.Instance = DMA2_Stream0;
+  dma2_handle_adc1.Init.Channel = DMA_CHANNEL_0;
+  dma2_handle_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;
+  dma2_handle_adc1.Init.PeriphInc = DMA_PINC_DISABLE;
+  dma2_handle_adc1.Init.MemInc = DMA_MINC_ENABLE;
+  dma2_handle_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+  dma2_handle_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+  dma2_handle_adc1.Init.Mode = DMA_CIRCULAR;
+  dma2_handle_adc1.Init.Priority = DMA_PRIORITY_LOW;
+  dma2_handle_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+  if (HAL_DMA_Init(&dma2_handle_adc1) != HAL_OK)
+    Error_Handler();
 
-/* USER CODE END 1 */
+  __HAL_LINKDMA(&hadc1, DMA_Handle,dma2_handle_adc1);
+}
 
+ADC_HandleTypeDef* ADC1_Get_HandleTypeDef(void) {
+  return &hadc1;
+}
