@@ -30,6 +30,8 @@ extern "C" {
 #include "stm32f4xx_hal.h"
 
 void Error_Handler(void);
+void SystemPheri_Init();
+void SystemClock_Config(void);
 
 #ifdef __cplusplus
 }

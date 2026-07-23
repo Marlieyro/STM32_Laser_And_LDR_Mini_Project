@@ -6,9 +6,6 @@
 // DMA1 - I2C1_Rx Stream0 CH1
 // DMA1 - I2C1_Tx Stream6 CH1
 
-DMA_HandleTypeDef dma1_handle_i2c1_tx = {0};
-
-
 void DMA_General_Init(void) {
     __HAL_RCC_DMA1_CLK_ENABLE();
     __HAL_RCC_DMA2_CLK_ENABLE();

@@ -33,8 +33,10 @@ enable_language(C ASM)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
-        Core/Src/dma2.c
-        Core/Inc/dma.h)
+        Core/Inc/MPU6050.h
+        Core/Src/MPU6050.c
+        Core/Inc/I2Cdev.h
+        Core/Src/I2Cdev.c)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)

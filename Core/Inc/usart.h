@@ -39,7 +39,7 @@ extern UART_HandleTypeDef huart4;
 /* USER CODE END Private defines */
 
 void MX_UART4_Init(void);
-
+UART_HandleTypeDef* UART_GetHandleTypeDef();
 /* USER CODE BEGIN Prototypes */
 
 /* USER CODE END Prototypes */

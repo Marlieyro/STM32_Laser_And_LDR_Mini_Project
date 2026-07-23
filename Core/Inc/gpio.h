@@ -37,6 +37,8 @@ extern "C" {
 /* USER CODE END Private defines */
 
 void MX_GPIO_Init(void);
+void GPIO_LaserModule_Init(void);
+GPIO_InitTypeDef* GPIO_GetInitTypeDef_LaserModule();
 
 /* USER CODE BEGIN Prototypes */
 

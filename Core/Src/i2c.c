@@ -37,6 +37,11 @@ void MX_I2C1_Init(void) {
   if (HAL_I2C_Init(&hi2c1) != HAL_OK){
     Error_Handler();
   }
+
+  HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+  HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
+  HAL_NVIC_SetPriority(I2C1_ER_IRQn, 0, 0);
 }
 
 void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle) {
@@ -120,3 +125,5 @@ static void I2C_DMA_Init(void) {
 I2C_HandleTypeDef* I2C1_Get_HandleTypeDef(void) {
   return &hi2c1;
 }
+
+

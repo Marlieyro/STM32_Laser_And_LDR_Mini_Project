@@ -32,6 +32,8 @@
 
 /* USER CODE END 1 */
 
+// For laser
+static GPIO_InitTypeDef gpioС_init;
 /** Pinout Configuration
 */
 void MX_GPIO_Init(void)
@@ -41,9 +43,21 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
 }
 
-/* USER CODE BEGIN 2 */
+/**
+ * For Laser Module
+ */
+void GPIO_LaserModule_Init(void) {
+  gpioС_init.Pin = GPIO_PIN_6;
+  gpioС_init.Mode = GPIO_MODE_OUTPUT_PP;
+  gpioС_init.Pull = GPIO_NOPULL;
+  gpioС_init.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &gpioС_init);
+}
 
-/* USER CODE END 2 */
+GPIO_InitTypeDef* GPIO_GetInitTypeDef_LaserModule(void) {
+  return &gpioС_init;
+}

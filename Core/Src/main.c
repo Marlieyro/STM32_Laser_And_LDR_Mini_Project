@@ -18,25 +18,46 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
+#include <string.h>
+#include <stdio.h>
+
 #include "adc.h"
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
+#include "timer.h"
+#include "dma.h"
+#include "MPU6050.h"
 
 // FPU subprocessor - ON
 
-void SystemClock_Config(void);
+uint16_t adc_buff[100];
+char log_buff[90];
+
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
 
 int main(void){
-  HAL_Init();
-  SystemClock_Config();
-  MX_GPIO_Init();
-  MX_ADC1_Init();
-  MX_I2C1_Init();
-  MX_UART4_Init();
-
+  SystemPheri_Init();
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+  // HAL_ADC_Start_DMA(ADC1_Get_HandleTypeDef(),(uint32_t*)adc_buff,100);
+  // HAL_TIM_Base_Start_IT(TIMER_GetHandleTypeDef());
+  volatile uint8_t con_test_rest;
+  volatile uint8_t accXSelfTest_res;
+  I2Cdev_init(I2C1_Get_HandleTypeDef());
+  MPU6050_initialize();
+  
+  // Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV) = 0x07
+  MPU6050_setRate(0x07);
+  MPU6050_setExternalFrameSync(MPU6050_EXT_SYNC_DISABLED);
+  MPU6050_setDLPFMode(MPU6050_DLPF_BW_256);
+  con_test_rest = MPU6050_testConnection();
   while (1){
-
+    MPU6050_getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    snprintf(log_buff, sizeof(log_buff), "Acseleromtr: X - %d, Y - %d, Z - %d Gyro: X - %d Y - %d Z - %d\n", ax, ay, az, gx, gy, gz);
+    HAL_UART_Transmit(UART_GetHandleTypeDef(), (uint8_t*)log_buff, sizeof(log_buff),1000);
+    HAL_Delay(200);
   }
 
 }
@@ -85,6 +106,18 @@ void Error_Handler(void) {
 
   }
 }
+
+void SystemPheri_Init() {
+  HAL_Init();
+  SystemClock_Config();
+  DMA_General_Init();
+  MX_GPIO_Init();
+  MX_ADC1_Init();
+  MX_I2C1_Init();
+  MX_UART4_Init();
+  GPIO_LaserModule_Init();
+  TIMER3_Config();
+}
 #ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
@@ -101,3 +134,9 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+
+/**
+ * Temp MPU Logic
+ */
+
