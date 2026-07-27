@@ -1715,7 +1715,7 @@ bool MPU6050_getIntDataReadyStatus() {
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
 void MPU6050_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
-    MPU6050_getMotion6(ax, ay, az, gx, gy, gz);
+    //MPU6050_getMotion6(ax, ay, az, gx, gy, gz);
     // TODO: magnetometer integration
 }
 /** Get raw 6-axis motion sensor readings (accel/gyro).
@@ -1730,15 +1730,17 @@ void MPU6050_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int1
  * @see getRotation()
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
-void MPU6050_getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz) {
+void MPU6050_getMotion6(void *user_struct) {
     I2Cdev_readBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 14, buffer, 0);
-    *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
-    *ay = (((int16_t)buffer[2]) << 8) | buffer[3];
-    *az = (((int16_t)buffer[4]) << 8) | buffer[5];
-    *gx = (((int16_t)buffer[8]) << 8) | buffer[9];
-    *gy = (((int16_t)buffer[10]) << 8) | buffer[11];
-    *gz = (((int16_t)buffer[12]) << 8) | buffer[13];
+    float *data = (float*)user_struct;
+    data[0] = ((((int16_t)buffer[0]) << 8) | buffer[1]) / 16384.0f;
+    data[1] = ((((int16_t)buffer[2]) << 8) | buffer[3]) / 16384.0f;
+    data[2] = ((((int16_t)buffer[4]) << 8) | buffer[5]) / 16384.0f;
+    data[3] = ((((int16_t)buffer[8]) << 8) | buffer[9]) / 131.0f;
+    data[4] = ((((int16_t)buffer[10]) << 8) | buffer[11]) / 131.0f;
+    data[5] = ((((int16_t)buffer[12]) << 8) | buffer[13]) / 131.0f;
 }
+
 /** Get 3-axis accelerometer readings.
  * These registers store the most recent accelerometer measurements.
  * Accelerometer measurements are written to these registers at the Sample Rate

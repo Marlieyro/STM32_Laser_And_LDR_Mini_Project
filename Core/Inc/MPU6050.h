@@ -583,7 +583,7 @@ bool MPU6050_getIntDataReadyStatus();
 
 // ACCEL_*OUT_* registers
 void MPU6050_getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz);
-void MPU6050_getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz);
+void MPU6050_getMotion6(void *user_struct);
 void MPU6050_getAcceleration(int16_t* x, int16_t* y, int16_t* z);
 int16_t MPU6050_getAccelerationX();
 int16_t MPU6050_getAccelerationY();

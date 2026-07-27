@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
+#include <math.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -33,29 +34,29 @@
 // FPU subprocessor - ON
 
 uint16_t adc_buff[100];
-char log_buff[90];
+char log_buff[300];
 
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
+typedef struct {
+  float ax, ay, az, gx, gy, gz;
+} motion6_float_data_t;
 
+motion6_float_data_t MPU_data;
+// 16bit ADC - 32767
+// Get val
+// For Accs X(ax,ay,az) / 16384 = float
+// For Gyro X(gy, gz, gx) / 131 = float
+// MPU6050_getMotion6 modifi by me!
+volatile uint8_t con_test_rest;
 int main(void){
   SystemPheri_Init();
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
   // HAL_ADC_Start_DMA(ADC1_Get_HandleTypeDef(),(uint32_t*)adc_buff,100);
   // HAL_TIM_Base_Start_IT(TIMER_GetHandleTypeDef());
-  volatile uint8_t con_test_rest;
-  volatile uint8_t accXSelfTest_res;
-  I2Cdev_init(I2C1_Get_HandleTypeDef());
-  MPU6050_initialize();
-  
-  // Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV) = 0x07
-  MPU6050_setRate(0x07);
-  MPU6050_setExternalFrameSync(MPU6050_EXT_SYNC_DISABLED);
-  MPU6050_setDLPFMode(MPU6050_DLPF_BW_256);
+
   con_test_rest = MPU6050_testConnection();
   while (1){
-    MPU6050_getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-    snprintf(log_buff, sizeof(log_buff), "Acseleromtr: X - %d, Y - %d, Z - %d Gyro: X - %d Y - %d Z - %d\n", ax, ay, az, gx, gy, gz);
+    MPU6050_getMotion6(&MPU_data);
+    snprintf(log_buff, sizeof(log_buff), "Acseleromtr: X - %f, Y - %f, Z - %f Gyro: X - %f Y - %f Z - %f\n", MPU_data.ax, MPU_data.ay, MPU_data.az, MPU_data.gx, MPU_data.gy, MPU_data.gz);
     HAL_UART_Transmit(UART_GetHandleTypeDef(), (uint8_t*)log_buff, sizeof(log_buff),1000);
     HAL_Delay(200);
   }
@@ -117,6 +118,29 @@ void SystemPheri_Init() {
   MX_UART4_Init();
   GPIO_LaserModule_Init();
   TIMER3_Config();
+  MPU6050_Config();
+}
+
+void MPU6050_Config() {
+  I2Cdev_init(I2C1_Get_HandleTypeDef());
+  MPU6050_initialize();
+
+  // Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV) = 0x07
+  MPU6050_setRate(0x07);
+  MPU6050_setExternalFrameSync(MPU6050_EXT_SYNC_DISABLED);
+  MPU6050_setDLPFMode(MPU6050_DLPF_BW_256);
+  con_test_rest = MPU6050_testConnection();
+}
+
+void complemenary() {
+  uint8_t angel_prev;
+  uint8_t gyro;
+  uint8_t dt;
+  uint8_t alpha;
+  uint8_t accel_angle = atan2f();
+
+  uint8_t res = (angel_prev + gyro * dt) + (1 - alpha) * accel_angle;
+  angel_prev = res;
 }
 #ifdef USE_FULL_ASSERT
 /**

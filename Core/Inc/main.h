@@ -32,6 +32,7 @@ extern "C" {
 void Error_Handler(void);
 void SystemPheri_Init();
 void SystemClock_Config(void);
+void MPU6050_Config();
 
 #ifdef __cplusplus
 }
